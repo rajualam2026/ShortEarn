@@ -48,10 +48,6 @@ RUN mkdir -p storage/framework/cache \
     && chmod -R 775 storage bootstrap/cache database
 
 # Cache Laravel (ignore errors during build)
-RUN php artisan config:cache || true
-RUN php artisan route:cache || true
-RUN php artisan view:cache || true
-
 EXPOSE 10000
 
 CMD sh -c "\
