@@ -31,11 +31,7 @@ RUN mkdir -p database \
 RUN cp .env.example .env || true
 
 # Install PHP dependencies
-RUN composer install \
-    --no-dev \
-    --optimize-autoloader \
-    --no-interaction
-
+RUN composer install --no-dev --optimize-autoloader --no-interaction
 # Build frontend assets
 RUN if [ -f package-lock.json ]; then \
         npm ci; \
