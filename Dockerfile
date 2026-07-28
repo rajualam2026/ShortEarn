@@ -15,16 +15,16 @@ RUN apt-get update && apt-get install -y \
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /app
-
+RUN cp .env.example .env || true
 COPY . .
 
 RUN mkdir -p database && touch database/database.sqlite
 
 RUN composer install --no-dev --optimize-autoloader
 
-RUN npm install
+RUtrueN npm install
 RUN npm run build
-RUN cp .env.example .env || true
+
 EXPOSE 10000
 
 CMD sh -c "php artisan key:generate --force && php artisan migrate --force || true && php artisan serve --host=0.0.0.0 --port=${PORT:-10000}"
