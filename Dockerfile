@@ -1,5 +1,6 @@
 FROM php:8.4-cli
 
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
     git \
     unzip \
@@ -10,39 +11,53 @@ RUN apt-get update && apt-get install -y \
     pkg-config \
     nodejs \
     npm \
- && docker-php-ext-install zip pdo_sqlite
+    && docker-php-ext-install zip pdo_sqlite \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
+# Install Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /app
 
+# Copy project files
 COPY . .
 
 # Create SQLite database
-RUN mkdir -p database && touch database/database.sqlite
+RUN mkdir -p database \
+    && touch database/database.sqlite
 
 # Create .env if missing
 RUN cp .env.example .env || true
 
 # Install PHP dependencies
-RUN composer install --no-dev --optimize-autoloader
+RUN composer install \
+    --no-dev \
+    --optimize-autoloader \
+    --no-interaction
 
-# Install Node dependencies and build assets
-RUN npm install
-RUN npm run build
+# Build frontend assets
+RUN if [ -f package-lock.json ]; then \
+        npm ci; \
+    else \
+        npm install; \
+    fi \
+    && npm run build
 
 # Laravel permissions
 RUN mkdir -p storage/framework/cache \
     storage/framework/sessions \
     storage/framework/views \
     bootstrap/cache \
- && chmod -R 775 storage bootstrap/cache
+    && chmod -R 775 storage bootstrap/cache database
 
-# Optimize Laravel (ignore errors if APP_KEY isn't available yet)
+# Cache Laravel (ignore errors during build)
 RUN php artisan config:cache || true
 RUN php artisan route:cache || true
 RUN php artisan view:cache || true
 
 EXPOSE 10000
 
-CMD sh -c "php artisan key:generate --force && php artisan migrate --force || true && php artisan serve --host=0.0.0.0 --port=${PORT:-10000}"
+CMD sh -c "\
+php artisan migrate --force || true && \
+php artisan serve --host=0.0.0.0 --port=${PORT:-10000}"
