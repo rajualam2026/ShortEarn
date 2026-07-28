@@ -15,15 +15,33 @@ RUN apt-get update && apt-get install -y \
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /app
-RUN cp .env.example .env || true
+
 COPY . .
 
+# Create SQLite database
 RUN mkdir -p database && touch database/database.sqlite
 
+# Create .env if missing
+RUN cp .env.example .env || true
+
+# Install PHP dependencies
 RUN composer install --no-dev --optimize-autoloader
 
-RUtrueN npm install
+# Install Node dependencies and build assets
+RUN npm install
 RUN npm run build
+
+# Laravel permissions
+RUN mkdir -p storage/framework/cache \
+    storage/framework/sessions \
+    storage/framework/views \
+    bootstrap/cache \
+ && chmod -R 775 storage bootstrap/cache
+
+# Optimize Laravel (ignore errors if APP_KEY isn't available yet)
+RUN php artisan config:cache || true
+RUN php artisan route:cache || true
+RUN php artisan view:cache || true
 
 EXPOSE 10000
 
