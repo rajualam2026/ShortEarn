@@ -29,7 +29,7 @@ RUN npm run build
 
 EXPOSE 10000
 
-CMD sh -c "php artisan key:generate --force && php artisan migrate --force || true && php artisan serve --host=0.0.0.0 --host=0.0.0.0 --port=${PORT:-10000}"
+CMD sh -c "php artisan key:generate --force && php artisan migrate --force || true && php artisan serve --host=0.0.0.0 --port=${PORT:-10000}"
 
 RUN apt-get update && apt-get install -y \
     git \
@@ -41,7 +41,7 @@ RUN apt-get update && apt-get install -y \
     pkg-config \
     nodejs \
     npm \
- && docker-php-ext-install zip pdo pdo_sqlite
+ && docker-php-ext-install zip pdo_sqlite
 
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
