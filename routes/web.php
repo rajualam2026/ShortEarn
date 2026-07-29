@@ -17,4 +17,4 @@ Route::get('/mini-app', [TelegramMiniAppController::class, 'index'])->name('mini
 
 Route::post('/telegram/login', [TelegramMiniAppController::class, 'login'])->name('telegram.login');
 Route::get('/dashboard', [TelegramMiniAppController::class, 'dashboard'])->name('dashboard');
-Route::post('/logout', [TelegramMiniAppController::class, 'logout'])->name('logout');])->name('logout');
+Route::post('/logout', [TelegramMiniAppController::class, 'logout'])->name('logout');
