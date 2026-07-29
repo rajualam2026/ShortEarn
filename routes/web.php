@@ -1,5 +1,14 @@
 <?php
+use Illuminate\Support\Facades\Route;
 
+Route::get('/debug', function () {
+    return [
+        'php' => PHP_VERSION,
+        'app_env' => config('app.env'),
+        'app_key' => config('app.key') ? 'OK' : 'MISSING',
+        'bot_token' => config('shortearn.bot_token') ? 'OK' : 'MISSING',
+    ];
+});
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TelegramMiniAppController;
 Route::get('/', function () {
